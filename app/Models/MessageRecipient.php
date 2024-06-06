@@ -12,6 +12,7 @@ class MessageRecipient extends Model
     public function message()
     {
         return $this->belongsTo(Message::class, 'message_id');
+
     }
     
 }

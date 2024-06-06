@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\UserGroupMember;
 use Illuminate\Http\Request;
-use App\Models\Message;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 
@@ -203,8 +202,4 @@ class UserController extends Controller
         }
 
     }
-
-
-
-
 }

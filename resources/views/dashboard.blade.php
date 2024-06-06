@@ -356,7 +356,6 @@
                             }
                         });
 
-                        console.log(e);
                     },
                     error: function(xhr, status, error) {
                         console.error(error);

@@ -25,7 +25,7 @@ This guide will walk you through the steps to set up WebSockets in a Laravel app
    php artisan db:seed 
    
   
-4. Update your .env file with your Pusher credentials:
+4. Update your .env file with your Pusher credentials and AES encryption key:
      ```bash
     PUSHER_APP_ID=test
     PUSHER_APP_KEY=test
@@ -34,14 +34,12 @@ This guide will walk you through the steps to set up WebSockets in a Laravel app
     LARAVEL_WEBSOCKETS_HOST=127.0.0.1
     LARAVEL_WEBSOCKETS_SCHEME=http
     LARAVEL_WEBSOCKETS_PORT=6001
-    ENCRYPTION_KEY=mrWOdOfva5jO2IxcVO7NU5FUk3ItgjDzHF46zwnIXAU
+    ENCRYPTION_KEY=xxxxxxx
 
 5. Starting the local Server
-  Start the local server using the following Artisan command:
    ```bash
    php artisan serve   
 6. Starting the WebSocket Server
-  Start the WebSocket server using the following Artisan command:
    ```bash
    php artisan websockets:serve
 7. Run the Queue using the following Artisan command:
@@ -67,7 +65,6 @@ This guide will walk you through the steps to set up WebSockets in a Laravel app
     npm install
   
 2. Compile your assets :
-    
      ```bash
      npm run dev
    

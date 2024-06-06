@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\User;
 use App\Models\UserGroup;
-use App\Models\UserGroupMember;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class UserGroupMemberFactory extends Factory

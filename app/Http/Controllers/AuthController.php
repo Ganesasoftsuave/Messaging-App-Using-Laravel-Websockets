@@ -20,7 +20,7 @@ class AuthController extends Controller
         return view('login');
     }
 
-    public function Login(Request $request)
+    public function postLogin(Request $request)
     {
         try {
             $validator = $request->validate([
@@ -43,12 +43,12 @@ class AuthController extends Controller
 
 
 
-    public function registration()
+    public function getRegister()
     {
         return view('register');
     }
 
-    public function customRegistration(Request $request)
+    public function postRegister(Request $request)
     {
         try {
             $request->validate([
@@ -71,18 +71,11 @@ class AuthController extends Controller
             return redirect("/register")->withErrors(['failed' => $e->getMessage()]);
         }
     }
-
-
-
-
-
-
     public function signOut()
     {
         Session::flush();
         Auth::logout();
         return Redirect('/');
     }
-
 
 }

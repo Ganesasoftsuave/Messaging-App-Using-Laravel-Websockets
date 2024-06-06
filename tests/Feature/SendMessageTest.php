@@ -12,7 +12,6 @@ use App\Models\UserGroup;
 use App\Jobs\SendMessageJob;
 use App\Models\UserGroupMember;
 use App\Models\MessageRecipient;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -71,7 +70,6 @@ class SendMessageTest extends TestCase
         $expectedResponse = ['error' => 'The selected receiver id is invalid.'];
 
         // Act
-
         $response = $this->postJson(route('send.message'), $payload);
 
         // Assert
@@ -127,10 +125,9 @@ class SendMessageTest extends TestCase
         $expectedResponse = ['success' => 'Message sent successfully.'];
 
         // Act
-
         $response = $this->postJson(route('send.groupmessage'), $payload);
-        // Assert
 
+        // Assert
         $response->assertStatus(200)
             ->assertJson($expectedResponse);
         Queue::assertPushed(SendMessageJob::class);
@@ -258,7 +255,6 @@ class SendMessageTest extends TestCase
         // Act
         Queue::shouldReceive('push')->andThrow(new \Exception('Error sending message'));
         $response = $this->postJson(route('send.message.to.all'), $payload);
-
 
         // Assert
         $response->assertStatus(500)

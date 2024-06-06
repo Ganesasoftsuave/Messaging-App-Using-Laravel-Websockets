@@ -14,7 +14,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Message;
 use Carbon\Carbon;
-use App\Models\MessageRecipient;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 

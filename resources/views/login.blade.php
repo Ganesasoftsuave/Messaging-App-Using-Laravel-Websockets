@@ -19,7 +19,7 @@
             </div>
             
             <div class="card-body">
-                <form method="POST" action="{{ route('login.custom') }}">
+                <form method="POST" action="{{ route('post.login') }}">
                     @csrf
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
@@ -35,7 +35,7 @@
                     <button type="submit" class="btn btn-primary btn-block mb-3">Login</button>
                 </form>
                 <div class="text-center">
-                    <a href="{{ route('register.user') }}" class="btn btn-link">New User ? Register here..</a>
+                    <a href="{{ route('get.register') }}" class="btn btn-link">New User ? Register here..</a>
                 </div>
             </div>
         </div>

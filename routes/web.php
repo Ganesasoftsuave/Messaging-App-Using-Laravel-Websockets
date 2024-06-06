@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [AuthController::class, 'index'])->name('login');
-Route::post('custom-login', [AuthController::class, 'Login'])->name('login.custom'); 
-Route::get('register', [AuthController::class, 'registration'])->name('register.user');
-Route::post('custom-registration', [AuthController::class, 'customRegistration'])->name('register.custom'); 
+Route::post('login', [AuthController::class, 'postLogin'])->name('post.login'); 
+Route::get('register', [AuthController::class, 'getRegister'])->name('get.register');
+Route::post('register', [AuthController::class, 'postRegister'])->name('post.register'); 
 Route::get('signout', [AuthController::class, 'signOut'])->name('signout');
 
 
