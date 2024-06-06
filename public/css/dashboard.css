@@ -1,0 +1,26 @@
+.dropdown-menu {
+    width: 300px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.dropdown-header {
+    font-size: 15px;
+    font-weight: bold;
+    color: black
+}
+
+.dropdown-item {
+    border-bottom: 1px solid #ccc;
+    white-space: pre-wrap;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.flex {
+    display: flex;
+    justify-content: space-between;
+
+}
