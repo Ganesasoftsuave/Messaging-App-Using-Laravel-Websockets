@@ -10,10 +10,11 @@ use App\Models\UserGroupMember;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 class UserController extends Controller
 {
-    public function dashboard()
+    public function dashboard(): View
     {
         $userId = auth()->id();
         $users = User::where('id', '!=', $userId)->get(['id', 'name']);
@@ -36,7 +37,7 @@ class UserController extends Controller
         return view('dashboard', compact('users', 'notificationCount', 'userGroups'));
     }
 
-    public function sendMessage(Request $request)
+    public function sendMessage(Request $request): JsonResponse
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -63,7 +64,7 @@ class UserController extends Controller
         }
     }
 
-    public function sendGroupMessage(Request $request)
+    public function sendGroupMessage(Request $request): JsonResponse
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -90,7 +91,7 @@ class UserController extends Controller
             return response()->json(['error' => 'Something Went Wrong'], 500);
         }
     }
-    public function sendMessageToAll(Request $request)
+    public function sendMessageToAll(Request $request): JsonResponse
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -113,7 +114,7 @@ class UserController extends Controller
             return response()->json(['error' => 'Something Went Wrong'], 500);
         }
     }
-    public function getMessageList($userId)
+    public function getMessageList($userId): JsonResponse
     {
         try {
             $notificationCount = 0;
@@ -146,7 +147,7 @@ class UserController extends Controller
             ], 500);
         }
     }
-    public function updateNotificationCount($userId)
+    public function updateNotificationCount($userId): JsonResponse
     {
         try {
             User::findOrFail($userId);
@@ -157,7 +158,7 @@ class UserController extends Controller
         }
     }
 
-    public function decryptMessage(Request $request)
+    public function decryptMessage(Request $request): JsonResponse
     {
         try {
             $encryptedMessage = $request->input('encryptedMessage');
@@ -168,7 +169,7 @@ class UserController extends Controller
         }
     }
 
-    public function subscribe(Request $request)
+    public function subscribe(Request $request): JsonResponse
     {
         try {
             $request->validate([

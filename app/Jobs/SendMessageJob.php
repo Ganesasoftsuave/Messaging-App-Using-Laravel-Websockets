@@ -32,7 +32,7 @@ class SendMessageJob implements ShouldQueue
         $this->messageData = $messageData;
     }
 
-    public function handle()
+    public function handle(): void
     {
         DB::beginTransaction();
         try {
@@ -56,7 +56,7 @@ class SendMessageJob implements ShouldQueue
         }
     }
 
-    protected function handleIndividualMessage()
+    protected function handleIndividualMessage(): void
     {
         $messageData = $this->messageData;
         $sender = User::find($messageData['sender_id']);
@@ -75,7 +75,7 @@ class SendMessageJob implements ShouldQueue
         event(new OneToOneMessageEvent($message, $receiver->id));
     }
 
-    protected function handleGroupMessage()
+    protected function handleGroupMessage(): void
     {
         $group = UserGroup::with('members')->find($this->messageData['group_id']);
 
@@ -102,7 +102,7 @@ class SendMessageJob implements ShouldQueue
         });
     }
 
-    protected function handleAllUsersMessage()
+    protected function handleAllUsersMessage(): void
     {
         $messageData = $this->messageData;
         $users = User::where('id', '!=', $messageData['sender_id'])->get();

@@ -3,16 +3,18 @@
 namespace App\Http\Controllers;
 
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Hash;
+use Illuminate\Http\Response;
 use Session;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\View\View;
 class AuthController extends Controller
 {
 
-    public function index()
+    public function index(): View 
     {
         if (Auth::check()) {
             return redirect()->intended('users/dashboard');
@@ -20,7 +22,7 @@ class AuthController extends Controller
         return view('login');
     }
 
-    public function postLogin(Request $request)
+    public function postLogin(Request $request):RedirectResponse
     {
         try {
             $validator = $request->validate([
@@ -43,12 +45,12 @@ class AuthController extends Controller
 
 
 
-    public function getRegister()
+    public function getRegister():View
     {
         return view('register');
     }
 
-    public function postRegister(Request $request)
+    public function postRegister(Request $request):RedirectResponse
     {
         try {
             $request->validate([
@@ -71,7 +73,7 @@ class AuthController extends Controller
             return redirect("/register")->withErrors(['failed' => $e->getMessage()]);
         }
     }
-    public function signOut()
+    public function signOut():RedirectResponse
     {
         Session::flush();
         Auth::logout();
