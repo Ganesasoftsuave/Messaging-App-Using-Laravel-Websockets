@@ -18,9 +18,7 @@ class MessageFactory extends Factory
             'sender_id' => User::factory(),
             'content' => $this->faker->paragraph,
             'type' => $this->faker->randomElement(['individual', 'group', 'all']),
-            'sender_name' => $this->faker->name,
             'group_id' => null,
-            'group_name' => null,
         ];
     }
 }

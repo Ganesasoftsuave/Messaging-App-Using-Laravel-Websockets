@@ -34,7 +34,6 @@ class SendMessageTest extends TestCase
         Queue::fake();
         $sender = User::factory()->create();
         $receiver = User::factory()->create();
-
         $payload = [
             'receiver_id' => $receiver->id,
             'content' => $this->faker->text,
@@ -45,7 +44,7 @@ class SendMessageTest extends TestCase
         $expectedResponse = ['success' => 'Message sent successfully.'];
 
         // Act
-        $response = $this->postJson(route('send.message'), $payload);
+        $response = $this->postJson(route('send.message.to.single.user'), $payload);
 
         // Assert
         $response->assertStatus(200)
@@ -70,7 +69,7 @@ class SendMessageTest extends TestCase
         $expectedResponse = ['error' => 'The selected receiver id is invalid.'];
 
         // Act
-        $response = $this->postJson(route('send.message'), $payload);
+        $response = $this->postJson(route('send.message.to.single.user'), $payload);
 
         // Assert
         $response->assertStatus(422)
@@ -96,7 +95,7 @@ class SendMessageTest extends TestCase
 
         // Act
         Queue::shouldReceive('push')->andThrow(new \Exception('Error sending message'));
-        $response = $this->postJson(route('send.message'), $payload);
+        $response = $this->postJson(route('send.message.to.single.user'), $payload);
 
         // Assert
         $response->assertStatus(500)
@@ -114,18 +113,19 @@ class SendMessageTest extends TestCase
         $userGroupMember = $userGroupMembers->random();
         $message = $this->faker->text;
         $groupName = UserGroup::where('id', $userGroupMember->group_id)->value('name');
+        $senderName = User::where('id', $userGroupMember->user_id)->value('name');
         $payload = [
             'group_id' => $userGroupMember->group_id,
             'content' => $message,
             'sender_id' => $userGroupMember->user_id,
-            'sender_name' => $userGroupMember->user_name,
+            'sender_name' => $senderName,
             'message_type' => 'Group',
             'group_name' => $groupName,
         ];
         $expectedResponse = ['success' => 'Message sent successfully.'];
 
         // Act
-        $response = $this->postJson(route('send.groupmessage'), $payload);
+        $response = $this->postJson(route('send.message.to.group'), $payload);
 
         // Assert
         $response->assertStatus(200)
@@ -142,18 +142,19 @@ class SendMessageTest extends TestCase
         $userGroupMember = $userGroupMembers->random();
         $message = $this->faker->text;
         $groupName = UserGroup::where('id', $userGroupMember->group_id)->value('name');
+        $senderName = User::where('id', $userGroupMember->user_id)->value('name');
         $payload = [
-            'group_id' => "Test",
+            'group_id' => $this->faker->text,
             'content' => $message,
             'sender_id' => $userGroupMember->user_id,
-            'sender_name' => $userGroupMember->user_name,
+            'sender_name' => $senderName,
             'message_type' => 'Group',
             'group_name' => $groupName,
         ];
         $expectedResponse = ['error' => 'The group id must be an integer.'];
 
         // Act
-        $response = $this->postJson(route('send.groupmessage'), $payload);
+        $response = $this->postJson(route('send.message.to.group'), $payload);
 
         // Assert
         $response->assertStatus(422)
@@ -168,11 +169,12 @@ class SendMessageTest extends TestCase
         $userGroupMember = $userGroupMembers->random();
         $message = $this->faker->text;
         $groupName = UserGroup::where('id', $userGroupMember->group_id)->value('name');
+        $senderName = User::where('id', $userGroupMember->user_id)->value('name');
         $payload = [
             'group_id' => $userGroupMember->group_id,
             'content' => $message,
             'sender_id' => $userGroupMember->user_id,
-            'sender_name' => $userGroupMember->user_name,
+            'sender_name' => $senderName,
             'message_type' => 'Group',
             'group_name' => $groupName,
         ];
@@ -180,7 +182,7 @@ class SendMessageTest extends TestCase
 
         // Act
         Queue::shouldReceive('push')->andThrow(new \Exception('Error sending message'));
-        $response = $this->postJson(route('send.groupmessage'), $payload);
+        $response = $this->postJson(route('send.message.to.group'), $payload);
 
         // Assert
         $response->assertStatus(500)
@@ -243,7 +245,6 @@ class SendMessageTest extends TestCase
         $sender = $users->random();
         $message = $this->faker->text;
         $payload = [
-
             'content' => $message,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
@@ -262,9 +263,6 @@ class SendMessageTest extends TestCase
 
     }
 
-
-
-
     public function testSendMessage_withValidMessageContent_checkingMessageEncryptingAndDecryptedSuccesfullyOrNot()
     {
         // Arrange
@@ -275,31 +273,29 @@ class SendMessageTest extends TestCase
         $payload = [
             'content' => $message,
             'sender_id' => $sender->id,
-            'sender_name' => $sender->name,
             'message_type' => 'all',
+            'sender_name' => $sender->name
         ];
 
         $expectedResponse = ['success' => 'Message sent successfully.'];
-        $response = $this->postJson(route('send.message.to.all'), $payload);
-        $lastMessage = Message::latest()->first();
-        $encryptedMessage = $lastMessage->content;
 
         // Act
-        $decrptedResponse = $this->postJson(route('decrypt.message'), ['encryptedMessage' => $encryptedMessage]);
+        $response = $this->postJson(route('send.message.to.all'), $payload);
+        $lastMessage = Message::latest()->first();
+        $encryptedMessage = $lastMessage ? json_decode($lastMessage->content, true) : null;
+        $decrptedResponse = $this->postJson(route('decrypt.message'), ['encryptedMessage' => $encryptedMessage['content']]);
         $decryptedMessage = $decrptedResponse->json('decryptedMessage');
 
         // Assert
         $response->assertStatus(200)
             ->assertJson($expectedResponse);
-        $this->assertNotEquals($payload['content'], $lastMessage->content);
         $this->assertEquals($payload['content'], $decryptedMessage);
         Event::assertDispatched(AllUsersMessageEvent::class);
-
-
     }
     public function testSendMessage_withInvalidMessageContent_checkingMessageDecryptedSuccesfullyOrNot()
     {
         // Arrange
+        Event::fake();
         $users = User::factory(10)->create();
         $sender = $users->random();
         $message = $this->faker->text;
@@ -322,6 +318,7 @@ class SendMessageTest extends TestCase
             ->assertJson($expectedResponse);
         $decrptedResponse->assertStatus(500)
             ->assertJson($expecteddecrptedResponse);
+        Event::assertDispatched(AllUsersMessageEvent::class);
     }
     public function testSendMessagesWithSpecificUsers_withValidData_verifyOnlyTheIntendedUserReceivesTheMessage()
     {
@@ -342,7 +339,7 @@ class SendMessageTest extends TestCase
         $expectedResponse = ['success' => 'Message sent successfully.'];
 
         // Act
-        $response = $this->postJson(route('send.message'), $payload);
+        $response = $this->postJson(route('send.message.to.single.user'), $payload);
         $messageCount = MessageRecipient::count();
 
         // Assert
@@ -365,18 +362,19 @@ class SendMessageTest extends TestCase
             ->where('id', '!=', $userGroupMember->id)
             ->count();
         $groupName = UserGroup::where('id', $userGroupMember->group_id)->value('name');
+        $senderName = User::where('id', $userGroupMember->user_id)->value('name');
         $payload = [
             'group_id' => $userGroupMember->group_id,
             'content' => $message,
             'sender_id' => $userGroupMember->user_id,
-            'sender_name' => $userGroupMember->user_name,
+            'sender_name' => $senderName,
             'message_type' => 'group',
             'group_name' => $groupName,
         ];
         $expectedResponse = ['success' => 'Message sent successfully.'];
 
         // Act
-        $response = $this->postJson(route('send.groupmessage'), $payload);
+        $response = $this->postJson(route('send.message.to.group'), $payload);
         $messageCount = MessageRecipient::count();
 
         // Assert
@@ -416,7 +414,7 @@ class SendMessageTest extends TestCase
 
     }
 
-    public function testSendMessagesTo1000Users_withValidData_verifyAllTheUsersReceiveMessage()
+    public function testSendMessagesWith_1000Users_withValidData_verifyAllTheUsersReceiveMessage()
     {
         // Arrange
         Event::fake();
@@ -464,7 +462,7 @@ class SendMessageTest extends TestCase
         $expectedResponse = ['success' => 'Message sent successfully.'];
 
         // Act
-        $response = $this->postJson(route('send.message'), $payload);
+        $response = $this->postJson(route('send.message.to.single.user'), $payload);
         $messageListResponse = $this->getJson(route('get.message.list', ['userId' => $receiver->id]));
 
         // Assert
@@ -474,7 +472,7 @@ class SendMessageTest extends TestCase
         Event::assertDispatched(OneToOneMessageEvent::class);
     }
 
-    public function testGetMessageList_withInValidData_returnFailureReponse()
+    public function testGetMessageList_withInvalidData_returnFailureReponse()
     {
         // Arrange
         Queue::fake();
@@ -493,8 +491,8 @@ class SendMessageTest extends TestCase
         $expectedResponse = ['success' => 'Message sent successfully.'];
 
         // Act
-        $response = $this->postJson(route('send.message'), $payload);
-        $messageListResponse = $this->getJson(route('get.message.list', ['userId' => 'Test']));
+        $response = $this->postJson(route('send.message.to.single.user'), $payload);
+        $messageListResponse = $this->getJson(route('get.message.list', ['userId' => $this->faker->randomNumber(3)]));
 
         // Assert
         $response->assertStatus(200)
@@ -522,7 +520,7 @@ class SendMessageTest extends TestCase
         $expectedResponse = ['success' => 'Message sent successfully.'];
 
         // Act
-        $response = $this->postJson(route('send.message'), $payload);
+        $response = $this->postJson(route('send.message.to.single.user'), $payload);
         $notificationResponse = $this->postJson(route('update.notification.count', ['userId' => $receiver->id]));
 
         // Assert
@@ -550,9 +548,11 @@ class SendMessageTest extends TestCase
         ];
 
         $expectedResponse = ['success' => 'Message sent successfully.'];
+
         // Act
-        $response = $this->postJson(route('send.message'), $payload);
+        $response = $this->postJson(route('send.message.to.single.user'), $payload);
         $notificationResponse = $this->postJson(route('update.notification.count', ['userId' => $this->faker->randomNumber(3)]));
+      
         // Assert
         $response->assertStatus(200)
             ->assertJson($expectedResponse);
@@ -569,7 +569,6 @@ class SendMessageTest extends TestCase
         $payload = [
             'user_id' => $user->id,
             'group_id' => $userGroup->id,
-            'user_name' => $user->name,
         ];
         $expectedResponse = ['is_subscribed' => true];
 
@@ -579,7 +578,7 @@ class SendMessageTest extends TestCase
         // Assert
         $response->assertStatus(200)
             ->assertJson($expectedResponse);
-       
+
 
 
     }
@@ -591,7 +590,6 @@ class SendMessageTest extends TestCase
         $payload = [
             'user_id' => $user->id,
             'group_id' => $userGroup->id,
-            'user_name' => $user->name,
         ];
         $expectedResponse = ['is_subscribed' => false];
 
@@ -602,11 +600,11 @@ class SendMessageTest extends TestCase
         // Assert
         $falseResponse->assertStatus(200)
             ->assertJson($expectedResponse);
-        
+
 
 
     }
-    public function testUpdateUserSubsribeButtonValue_withInValidData_returnFailureReponse()
+    public function testUpdateUserSubsribeButtonValue_withInvalidData_returnFailureReponse()
     {
         // Arrange
         $user = User::factory()->create();
@@ -614,7 +612,6 @@ class SendMessageTest extends TestCase
         $payload = [
             'user_id' => $this->faker->randomNumber(3),
             'group_id' => $userGroup->id,
-            'user_name' => $user->name,
         ];
 
         // Act

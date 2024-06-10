@@ -2,9 +2,8 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
+
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -20,13 +19,10 @@ class OneToOneMessageEvent implements ShouldBroadcast
      * @return void
      */
 
-    public $message;
-    public $receiverId;
-    public function __construct($message,$receiverId)
+    public $messageData;
+    public function __construct($messageData)
     {
-        $this->message = $message;
-        $this->receiverId = $receiverId;
-        
+        $this->messageData = $messageData;
     }
 
     /**
@@ -36,6 +32,6 @@ class OneToOneMessageEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('user.'.$this->receiverId);
+        return new PrivateChannel('user.'.  $this->messageData['receiver_id']);
     }
 }

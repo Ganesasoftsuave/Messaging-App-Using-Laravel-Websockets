@@ -58,27 +58,23 @@ class SendMessageJob implements ShouldQueue
 
     protected function handleIndividualMessage(): void
     {
-        $messageData = $this->messageData;
-        $sender = User::find($messageData['sender_id']);
+        $sender = User::find($this->messageData['sender_id']);
         $message = $sender->messages()->create([
-            'content' => $messageData['content'],
+            'content' => json_encode(['content' => $this->messageData['content']]),
             'type' => self::MESSAGE_INDIVIDUAL,
-            'sender_name' => $messageData['sender_name'],
         ]);
-        $receiver = User::find($messageData['receiver_id']);
+        $receiver = User::find($this->messageData['receiver_id']);
         $message->recipients()->create([
             'recipient_id' => $receiver->id,
             'seen' => 0,
             'seen_at' => Carbon::now(),
         ]);
-
-        event(new OneToOneMessageEvent($message, $receiver->id));
+        event(new OneToOneMessageEvent($this->messageData));
     }
 
     protected function handleGroupMessage(): void
     {
         $group = UserGroup::with('members')->find($this->messageData['group_id']);
-
         $subscribedUserIds = $group->members
             ->where('is_subscribe', true)
             ->where('user_id', '!=', $this->messageData['sender_id'])
@@ -86,11 +82,9 @@ class SendMessageJob implements ShouldQueue
 
         $message = $group->messages()->create([
             'sender_id' => $this->messageData['sender_id'],
-            'content' => $this->messageData['content'],
+            'content' =>json_encode(['content' => $this->messageData['content']]),
             'type' => self::MESSAGE_GROUP,
             'group_id' => $this->messageData['group_id'],
-            'group_name' => $this->messageData['group_name'],
-            'sender_name' => $this->messageData['sender_name'],
         ]);
         $subscribedUserIds->each(function ($recipientId) use ($message) {
             $message->recipients()->create([
@@ -98,19 +92,17 @@ class SendMessageJob implements ShouldQueue
                 'seen' => 0,
                 'seen_at' => Carbon::now(),
             ]);
-            event(new GroupMessageEvent($message, $recipientId));
+            event(new GroupMessageEvent($this->messageData, $recipientId));
         });
     }
 
     protected function handleAllUsersMessage(): void
     {
-        $messageData = $this->messageData;
-        $users = User::where('id', '!=', $messageData['sender_id'])->get();
+        $users = User::where('id', '!=', $this->messageData['sender_id'])->get();
         $message = Message::create([
-            'sender_id' => $messageData['sender_id'],
-            'content' => $messageData['content'],
+            'sender_id' => $this->messageData['sender_id'],
+            'content' => json_encode(['content' => $this->messageData['content']]),
             'type' => self::MESSAGE_ALL,
-            'sender_name' => $messageData['sender_name'],
         ]);
         foreach ($users as $user) {
             $message->recipients()->create([
@@ -118,7 +110,7 @@ class SendMessageJob implements ShouldQueue
                 'seen' => 0,
                 'seen_at' => Carbon::now(),
             ]);
-            event(new AllUsersMessageEvent($message, $user->id));
+            event(new AllUsersMessageEvent($this->messageData , $user->id));
         }
     }
 }

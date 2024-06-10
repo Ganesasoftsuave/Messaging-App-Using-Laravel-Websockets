@@ -144,14 +144,14 @@
             });
         }
 
-        function sendMessage() {
+        function sendMessageToSingleUser() {
             let receiverId = $('#receiver_id').val();
             let message = $('#message').val();
             let senderId = $('#sender_id').val();
             let senderName = $('#sender_name').val()
             let messageType = "individual";
             $.ajax({
-                url: "{{ route('send.message') }}",
+                url: "{{ route('send.message.to.single.user') }}",
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
@@ -173,7 +173,7 @@
             });
         }
 
-        function sendGroupMessage() {
+        function sendMessageToGroup() {
 
             let message = $('#group_message').val();
             let senderId = $('#group_sender_id').val();
@@ -182,7 +182,7 @@
             let groupName = $('#group_name').val();
             let messageType = "group";
             $.ajax({
-                url: "{{ route('send.groupmessage') }}",
+                url: "{{ route('send.message.to.group') }}",
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
@@ -233,9 +233,6 @@
             });
         }
 
-
-
-
         $(document).ready(function() {
             $('#usersTable').DataTable({
                 "paging": true,
@@ -249,11 +246,11 @@
             });
             $('#messageForm').submit(function(e) {
                 e.preventDefault();
-                sendMessage();
+                sendMessageToSingleUser();
             });
             $('#groupMessageForm').submit(function(e) {
                 e.preventDefault();
-                sendGroupMessage();
+                sendMessageToGroup();
             });
             $('#allUserMessageForm').submit(function(e) {
                 e.preventDefault();
@@ -265,9 +262,7 @@
                 success: function(data) {
                     let notificationCount = data.notificationCount;
                     $('#notification-count').text(notificationCount).toggle(notificationCount > 0);
-
                     let notificationList = $('#notification-list');
-
                     data.messages.forEach(function(message) {
                         let notificationText = '';
                         if (message.type === 'all') {
@@ -294,7 +289,6 @@
             });
             $('.subscribe-btn').click(function() {
                 let userId = $(this).data('user-id');
-                let userName = $(this).data('user-name');
                 let groupId = $(this).data('group-id');
                 let button = $(this);
 
@@ -304,7 +298,6 @@
                     data: {
                         _token: "{{ csrf_token() }}",
                         user_id: userId,
-                        user_name: userName,
                         group_id: groupId
                     },
                     success: function(response) {
@@ -327,9 +320,9 @@
             let notificationList = $('#notification-list');
 
             function handleNotification(e, notificationCount, notificationList) {
-                let encryptedMessage = e.message['content'];
-                let groupName = e.message['group_name'] ? e.message['group_name'] + ': ' : '';
-                let all = e.message['type'] === 'all' ? e.message['type'] + ': ' : '';
+                let encryptedMessage = e.messageData['content'];
+                let groupName = e.messageData['message_type']==="group" ? e.messageData['group_name'] + ': ' : '';
+                let all = e.messageData['message_type'] === 'all' ? 'All' + ': ' : '';
 
                 $.ajax({
                     url: "{{ route('decrypt.message') }}",
@@ -345,16 +338,16 @@
                         notificationCount.text(count + 1).show();
 
                         let notificationItem = $('<li class="dropdown-item"></li>').html(
-                            `<strong>${groupName}${all}${e.message['sender_name']}:</strong> ${decryptedMessage}`
+                            `<strong>${groupName}${all}${e.messageData['sender_name']}:</strong> ${decryptedMessage}`
                         );
 
                         notificationList.find('.dropdown-header').after(notificationItem);
-
                         notificationList.find('li').each(function() {
                             if ($(this).text().trim() === 'No new notifications') {
                                 $(this).remove();
                             }
                         });
+                        
 
                     },
                     error: function(xhr, status, error) {

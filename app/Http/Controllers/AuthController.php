@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Hash;
-use Illuminate\Http\Response;
 use Session;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;

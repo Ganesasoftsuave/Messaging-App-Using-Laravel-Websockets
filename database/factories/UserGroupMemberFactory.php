@@ -21,7 +21,6 @@ class UserGroupMemberFactory extends Factory
             'user_id' => function () {
                 return User::factory()->create()->id;
             },  
-            'user_name' => $this->faker->name,
             'group_id' => function () {
                 return UserGroup::factory()->create()->id;
             },

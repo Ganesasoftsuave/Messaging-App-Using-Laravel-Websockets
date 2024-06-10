@@ -1,10 +1,7 @@
 <?php
 
 namespace App\Events;
-
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -19,12 +16,13 @@ class AllUsersMessageEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public $message;public $receiverId;
-    public function __construct($message,$receiverId)
+    public $messageData;
+    public $receiverId;
+    public function __construct($messageData, $receiverId)
     {
-        $this->message = $message;
+        $this->messageData =$messageData;
         $this->receiverId = $receiverId;
-        
+
     }
 
     /**
@@ -34,6 +32,6 @@ class AllUsersMessageEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('allUser.'.$this->receiverId);
+        return new PrivateChannel('allUser.' . $this->receiverId);
     }
 }

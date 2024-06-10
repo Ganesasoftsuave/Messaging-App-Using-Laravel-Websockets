@@ -1,10 +1,7 @@
 <?php
 
 namespace App\Events;
-
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -19,11 +16,11 @@ class GroupMessageEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public $message;
+    public $messageData;
     public $receiverId;
-    public function __construct($message,$receiverId)
+    public function __construct($messageData,$receiverId)
     {
-        $this->message = $message;
+        $this->messageData = $messageData;
         $this->receiverId = $receiverId;
         
     }
