@@ -19,14 +19,20 @@
             <div class="card-header bg-primary text-center text-white">
                 <h3 class="m-1">Register User</h3>
             </div>
-
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                        @foreach ($errors->all() as $error)
+                            {{ $error }}
+                        @endforeach
+                </div>
+            @endif
             <div class="card-body">
                 <form action="{{ route('post.register') }}" method="POST">
                     @csrf
                     <div class="mb-3">
                         <label for="name" class="form-label">Name</label>
                         <input type="text" class="form-control" id="name" name="name" placeholder="Name"
-                             autofocus required>
+                            autofocus required>
                         @error('name')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
@@ -57,4 +63,5 @@
         </div>
     </main>
 </body>
+
 </html>

@@ -23,6 +23,8 @@ return [
             'web',
             \BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize::class,
         ],
+        'refreshInterval' => 3,
+
 
     ],
 
