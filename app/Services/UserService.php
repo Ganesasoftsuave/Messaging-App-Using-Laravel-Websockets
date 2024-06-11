@@ -53,7 +53,7 @@ class UserService
             ])
             ->map(function ($message) {
                 $content = json_decode($message->content, true);
-                $message->content = $content && isset($content['content']) ? Crypt::decryptString($content['content']) : "Invalid content";
+                $message->content = $content && isset($content['message_data']) ? Crypt::decryptString($content['message_data']) : "Invalid content";
                 $message->sender_name = $message->sender->name;
                 $message->group_name = $message->group ? $message->group->name : null;
                 return $message;

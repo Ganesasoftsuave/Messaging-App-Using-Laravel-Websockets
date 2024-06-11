@@ -60,7 +60,7 @@ class SendMessageJob implements ShouldQueue
     {
         $sender = User::find($this->messageData['sender_id']);
         $message = $sender->messages()->create([
-            'content' => json_encode(['content' => $this->messageData['content']]),
+            'content' => $this->messageData['content'],
             'type' => self::MESSAGE_INDIVIDUAL,
         ]);
         $receiver = User::find($this->messageData['receiver_id']);
@@ -82,7 +82,7 @@ class SendMessageJob implements ShouldQueue
 
         $message = $group->messages()->create([
             'sender_id' => $this->messageData['sender_id'],
-            'content' =>json_encode(['content' => $this->messageData['content']]),
+            'content' =>$this->messageData['content'],
             'type' => self::MESSAGE_GROUP,
             'group_id' => $this->messageData['group_id'],
         ]);
@@ -101,7 +101,7 @@ class SendMessageJob implements ShouldQueue
         $users = User::where('id', '!=', $this->messageData['sender_id'])->get();
         $message = Message::create([
             'sender_id' => $this->messageData['sender_id'],
-            'content' => json_encode(['content' => $this->messageData['content']]),
+            'content' => $this->messageData['content'],
             'type' => self::MESSAGE_ALL,
         ]);
         foreach ($users as $user) {

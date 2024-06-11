@@ -267,7 +267,7 @@ class SendMessageTest extends TestCase
     {
         // Arrange
         Event::fake();
-        $users = User::factory(10)->create();
+        $users = User::factory()->count(10)->create();
         $sender = $users->random();
         $message = $this->faker->text;
         $payload = [
@@ -283,8 +283,8 @@ class SendMessageTest extends TestCase
         $response = $this->postJson(route('send.message.to.all'), $payload);
         $lastMessage = Message::latest()->first();
         $encryptedMessage = $lastMessage ? json_decode($lastMessage->content, true) : null;
-        $decrptedResponse = $this->postJson(route('decrypt.message'), ['encryptedMessage' => $encryptedMessage['content']]);
-        $decryptedMessage = $decrptedResponse->json('decryptedMessage');
+        $decryptedResponse = $this->postJson(route('decrypt.message'), ['encryptedMessage' => json_encode($encryptedMessage)]);
+        $decryptedMessage = $decryptedResponse->json('decryptedMessage');
 
         // Assert
         $response->assertStatus(200)
@@ -292,33 +292,15 @@ class SendMessageTest extends TestCase
         $this->assertEquals($payload['content'], $decryptedMessage);
         Event::assertDispatched(AllUsersMessageEvent::class);
     }
-    public function testSendMessage_withInvalidMessageContent_checkingMessageDecryptedSuccesfullyOrNot()
+    public function testSendMessage_withInvalidMessageContent_returnInvalidMessageContent()
     {
         // Arrange
-        Event::fake();
-        $users = User::factory(10)->create();
-        $sender = $users->random();
-        $message = $this->faker->text;
-        $payload = [
-            'content' => $message,
-            'sender_id' => $sender->id,
-            'sender_name' => $sender->name,
-            'message_type' => 'all',
-        ];
-
-        $expectedResponse = ['success' => 'Message sent successfully.'];
         $expecteddecrptedResponse = ['error' => 'Failed to decrypt the message.'];
 
         // Act
-        $response = $this->postJson(route('send.message.to.all'), $payload);
         $decrptedResponse = $this->postJson(route('decrypt.message'), ['encryptedMessage' => $this->faker->text]);
-
-        // Assert
-        $response->assertStatus(200)
-            ->assertJson($expectedResponse);
         $decrptedResponse->assertStatus(500)
             ->assertJson($expecteddecrptedResponse);
-        Event::assertDispatched(AllUsersMessageEvent::class);
     }
     public function testSendMessagesWithSpecificUsers_withValidData_verifyOnlyTheIntendedUserReceivesTheMessage()
     {
@@ -552,7 +534,7 @@ class SendMessageTest extends TestCase
         // Act
         $response = $this->postJson(route('send.message.to.single.user'), $payload);
         $notificationResponse = $this->postJson(route('update.notification.count', ['userId' => $this->faker->randomNumber(3)]));
-      
+
         // Assert
         $response->assertStatus(200)
             ->assertJson($expectedResponse);

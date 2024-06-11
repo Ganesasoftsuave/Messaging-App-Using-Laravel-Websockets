@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\InvalidMessageContentException;
 use App\Jobs\SendMessageJob;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
@@ -22,9 +23,8 @@ class MessageService
             return ['error' => $validator->errors()->first()];
         }
 
-        $data['content'] = Crypt::encryptString($data['content']);
+        $data['content'] = json_encode(['message_data' => Crypt::encryptString($data['content'])]);
         SendMessageJob::dispatch($data);
-        
         return ['success' => 'Message sent successfully.'];
     }
 
@@ -43,7 +43,7 @@ class MessageService
             return ['error' => $validator->errors()->first()];
         }
 
-        $data['content'] = Crypt::encryptString($data['content']);
+        $data['content'] = json_encode(['message_data' => Crypt::encryptString($data['content'])]);
         SendMessageJob::dispatch($data);
 
         return ['success' => 'Message sent successfully.'];
@@ -62,7 +62,7 @@ class MessageService
             return ['error' => $validator->errors()->first()];
         }
 
-        $data['content'] = Crypt::encryptString($data['content']);
+        $data['content'] = json_encode(['message_data' => Crypt::encryptString($data['content'])]);
         SendMessageJob::dispatch($data);
 
         return ['success' => 'Message sent successfully.'];
@@ -70,8 +70,12 @@ class MessageService
 
     public function decryptMessage($encryptedMessage)
     {
-        $decryptedMessage = Crypt::decryptString($encryptedMessage);
-
+            $content = json_decode($encryptedMessage, true);
+            if (!$content || !isset($content['message_data'])) {
+                throw new InvalidMessageContentException();
+            }
+            $decryptedMessage = Crypt::decryptString($content['message_data']);
+    
         return ['decryptedMessage' => $decryptedMessage];
     }
 }
