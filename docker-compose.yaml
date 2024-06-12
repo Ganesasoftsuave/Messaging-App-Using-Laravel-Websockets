@@ -1,0 +1,92 @@
+# local environment docker-compose
+
+version: '3.3'
+services:
+  #PHP Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    tty: true
+    depends_on:
+      - nginx
+      - db
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www/html/
+    volumes:
+      - './:/var/www/html/'
+      - './:/app:delegated'
+      - './storage:/app/storage:delegated'
+    networks:
+      - app-network
+
+  websocket:
+     build:
+       context: .
+       dockerfile: Dockerfile
+     working_dir: /var/www/html
+     command: php artisan websockets:serve
+     volumes:
+       - ./:/var/www/html/
+     ports:
+       - 6001:6001
+     depends_on:
+       - db
+     networks:
+       - app-network
+
+
+  #Nginx Service
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    tty: true
+    ports:
+      - '${DOCKER_HTTP_PORT:-8080}:80'
+      - '${DOCKER_HTTPS_PORT:-443}:443'
+    volumes:
+      - ./:/var/www/html/
+      - './.docker/nginx.dev/:/etc/nginx/conf.d:ro'
+    networks:
+      - app-network
+
+  #MySQL Service
+  db:
+    image: mysql:5.7.36
+    restart: unless-stopped
+    tty: true
+    ports:
+      - '${DOCKER_MYSQL_PORT:-3306}:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: 'test'
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: 'test'
+      MYSQL_USER: 'test_user'
+      MYSQL_PASSWORD: 'test_ps'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - ./.local_data/mysql:/var/lib/mysql/
+    networks:
+      - app-network
+
+  # Queue Service
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /var/www/html
+    command: php artisan queue:work
+    volumes:
+      - ./:/var/www/html/
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
