@@ -6,7 +6,7 @@ This guide will walk you through the steps to set up WebSockets in a Laravel app
 - Laravel >= 8.8
 - PHP >= 8.1
 - Composer (for package management)
-- Node.js (for Laravel Echo)
+- Node.js v21.7.1 (for Laravel Echo)
 
 ## Installation
 1. Run the composer install to setup necessary packages:
@@ -68,27 +68,20 @@ This guide will walk you through the steps to set up WebSockets in a Laravel app
 
 ## Docker Setup
         
-    Copy .env.docker and rename .env
+    Copy the .env.docker file to create a .env file:
     Run the following commands to setup docker containner
- 1. Switches the Docker CLI to use the desktop-linux context.
-    ```bash
-    docker context use desktop-linux
-  
-2.  Starting the Services:
+
+1.  Build and start Docker containers:
      ```bash
       docker compose up
       
-3.  Stopping the Services:
+2.  To Stop the Docker containners:
      ```bash
       docker-compose down
-4.  To lists the containers that are currently running
+3.  To see the list of the containers that are currently running
     ```bash
       docker ps
     
-    
-   
-
-
 ## Project Flow
 
 1.Users should register and log in to access the dashboard page.
