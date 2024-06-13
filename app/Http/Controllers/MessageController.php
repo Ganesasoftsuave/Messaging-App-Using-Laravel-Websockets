@@ -15,6 +15,12 @@ class MessageController extends Controller
         $this->messageService = $messageService;
     }
 
+    /**
+     * Send a message to a single user.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function sendMessageToSingleUser(Request $request): JsonResponse
     {
         try {
@@ -30,6 +36,12 @@ class MessageController extends Controller
         }
     }
 
+    /**
+     * Send a message to a group of users.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function sendMessageToGroup(Request $request): JsonResponse
     {
         try {
@@ -45,6 +57,12 @@ class MessageController extends Controller
         }
     }
 
+    /**
+     * Send a message to all users.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function sendMessageToAll(Request $request): JsonResponse
     {
         try {
@@ -60,6 +78,12 @@ class MessageController extends Controller
         }
     }
 
+    /**
+     * Decrypt a message.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function decryptMessage(Request $request): JsonResponse
     {
         try {

@@ -10,13 +10,18 @@ use Illuminate\Support\Facades\Crypt;
 
 class UserService
 {
+    // Retrieve dashboard data for a user
     public function getDashboardData($userId)
     {
+        // Get all users except the current user
         $users = User::where('id', '!=', $userId)->get(['id', 'name']);
+
+        // Count the number of unseen notifications for the user
         $notificationCount = MessageRecipient::where('recipient_id', $userId)
             ->where('seen', 0)
             ->count();
 
+        // Retrieve user groups with subscription status for the user
         $userGroups = UserGroup::pluck('id', 'name')->map(function ($groupId, $groupName) use ($userId) {
             $isSubscribed = UserGroupMember::where('user_id', $userId)
                 ->where('group_id', $groupId)
@@ -31,6 +36,7 @@ class UserService
         return compact('users', 'notificationCount', 'userGroups');
     }
 
+    // Retrieve a list of messages for a user
     public function getMessageList($userId)
     {
         $user = User::find($userId);
@@ -39,6 +45,7 @@ class UserService
             throw new \Exception('User not found');
         }
 
+        // Retrieve messages for the user and decrypt the content
         $messages = $user->receivedMessages()
             ->with(['sender', 'group' => function ($query) {
                 $query->select('id', 'name');
@@ -59,6 +66,7 @@ class UserService
                 return $message;
             });
 
+        // Count the number of unseen notifications for the user
         $notificationCount = $user->receivedMessages()
             ->wherePivot('seen', 0)
             ->count();
@@ -69,6 +77,7 @@ class UserService
         ];
     }
 
+    // Update notification count for a user
     public function updateNotificationCount($userId)
     {
         User::findOrFail($userId);
@@ -77,6 +86,7 @@ class UserService
         return ['success' => true];
     }
 
+    // Subscribe or unsubscribe a user to/from a group
     public function subscribeToGroup($userId, $groupId)
     {
         User::findOrFail($userId);

@@ -1,28 +1,36 @@
 <?php
 
 namespace App\Events;
+
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\Channel;
 
+/**
+ * Class AllUsersMessageEvent
+ *
+ * This event is responsible for broadcasting a message to all users.
+ */
 class AllUsersMessageEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    // Public property to hold message data
+    public $messageData;
+
+    // Name of the channel to broadcast on
+    public $channelName = 'allUser';
+
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param array $messageData The data of the message to be broadcasted.
      */
-    public $messageData;
-    public $receiverId;
-    public function __construct($messageData, $receiverId)
+    public function __construct($messageData)
     {
-        $this->messageData =$messageData;
-        $this->receiverId = $receiverId;
-
+        $this->messageData = $messageData;
     }
 
     /**
@@ -32,6 +40,7 @@ class AllUsersMessageEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('allUser.' . $this->receiverId);
+        // Broadcasting on a public channel named 'allUser'
+        return new Channel($this->channelName);
     }
 }

@@ -17,11 +17,7 @@ Broadcast::channel('user.{receiverId}', function ($user, $receiverId) {
 
     return $user->id == $receiverId;
 });
-Broadcast::channel('group.{receiverId}', function ($user,$receiverId) {
-
-    return $user->id == $receiverId;
+Broadcast::channel('group.{groupId}', function ($user, $groupId) {
+    return $user->groups->pluck('id')->contains($groupId);
 });
-Broadcast::channel('allUser.{receiverId}', function ($user, $receiverId) {
 
-    return $user->id == $receiverId;
-});

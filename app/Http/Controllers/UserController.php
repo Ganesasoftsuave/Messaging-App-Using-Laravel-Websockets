@@ -18,6 +18,7 @@ class UserController extends Controller
 
     public function dashboard(): View
     {
+        // Replace this line to get your user ID using your authentication method
         $userId = auth()->id();
         $data = $this->userService->getDashboardData($userId);
         return view('dashboard', $data);
@@ -26,6 +27,7 @@ class UserController extends Controller
     public function getMessageList($userId): JsonResponse
     {
         try {
+            // Replace the $userId with your authenticated user ID here 
             $result = $this->userService->getMessageList($userId);
 
             return response()->json($result);
@@ -40,6 +42,7 @@ class UserController extends Controller
     public function updateNotificationCount($userId): JsonResponse
     {
         try {
+            // Replace the $userId with your authenticated user ID here 
             $result = $this->userService->updateNotificationCount($userId);
 
             return response()->json($result);
@@ -52,10 +55,12 @@ class UserController extends Controller
     {
         try {
             $request->validate([
+                // Adjust the validation rules as per your requirements
                 'user_id' => 'required',
                 'group_id' => 'required',
             ]);
 
+            // Replace the user_id with your authenticated user ID here
             $result = $this->userService->subscribeToGroup($request->input('user_id'), $request->input('group_id'));
 
             return response()->json($result);

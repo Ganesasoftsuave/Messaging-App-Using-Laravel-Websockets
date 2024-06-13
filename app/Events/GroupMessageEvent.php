@@ -1,28 +1,36 @@
 <?php
 
 namespace App\Events;
+
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Class GroupMessageEvent
+ *
+ * This event is responsible for broadcasting a group message.
+ */
 class GroupMessageEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    // Public property to hold message data
+    public $messageData;
+
+    // Prefix for the channel name
+    public $channelNamePrefix = 'group';
+
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param array $messageData The data of the message to be broadcasted.
      */
-    public $messageData;
-    public $receiverId;
-    public function __construct($messageData,$receiverId)
+    public function __construct($messageData)
     {
-        $this->messageData = $messageData;
-        $this->receiverId = $receiverId;
-        
+        $this->messageData = $messageData;  
     }
 
     /**
@@ -32,6 +40,7 @@ class GroupMessageEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('group.'.$this->receiverId);
+        // Broadcasting on a private channel named 'group' followed by the group ID
+        return new PrivateChannel($this->channelNamePrefix.'.'.$this->messageData['group_id']);
     }
 }

@@ -9,17 +9,26 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Class OneToOneMessageEvent
+ *
+ * This event is responsible for broadcasting a one-to-one message.
+ */
 class OneToOneMessageEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    // Public property to hold message data
+    public $messageData;
+
+    // Prefix for the channel name
+    public $channelNamePrefix = 'user';
+
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param array $messageData The data of the message to be broadcasted.
      */
-
-    public $messageData;
     public function __construct($messageData)
     {
         $this->messageData = $messageData;
@@ -32,6 +41,7 @@ class OneToOneMessageEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('user.'.  $this->messageData['receiver_id']);
+        // Broadcasting on a private channel named 'user' followed by the receiver's ID
+        return new PrivateChannel($this->channelNamePrefix.'.'.$this->messageData['receiver_id']);
     }
 }

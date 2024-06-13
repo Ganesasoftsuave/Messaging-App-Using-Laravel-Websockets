@@ -3,21 +3,33 @@
 
 <head>
     <title>User Dashboard</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url('/css/dashboard.css') }}">
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables Bootstrap JS -->
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
     <script src="{{ asset('js/app.js') }}"></script>
 
 </head>
 
 <body>
+    <!-- Include navbar -->
     @include('layouts.navbar')
+    <!-- Include modals -->
     @include('layouts.modals')
     <div class="container">
 
@@ -33,11 +45,13 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- Loop through users and display in table -->
                         @foreach ($users as $user)
                             <tr>
                                 <td>{{ $user->id }}</td>
                                 <td>{{ $user->name }}</td>
                                 <td>
+                                    <!-- Button to show message form -->
                                     <button class="btn btn-primary"
                                         onclick="showMessageForm({{ $user->id }}, '{{ $user->name }}', '{{ Auth::user()->id }}','{{ Auth::user()->name }}')">Send</button>
                                 </td>
@@ -47,7 +61,6 @@
                 </table>
             </div>
         </div>
-    </div>
     </div>
     <div class="container">
 
@@ -64,11 +77,13 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- Loop through user groups and display in table -->
                         @foreach ($userGroups as $group)
                             <tr>
                                 <td>{{ $group['id'] }}</td>
                                 <td>{{ $group['name'] }}</td>
                                 <td>
+                                    <!-- Button to subscribe/unsubscribe from group -->
                                     <button
                                         class="btn btn-info subscribe-btn
                                         @if ($group['is_subscribed']) btn-danger @endif"
@@ -83,6 +98,7 @@
                                     </button>
                                 </td>
                                 <td>
+                                    <!-- Button to send message to group -->
                                     <button class="btn btn-primary send-btn" data-group-id="{{ $group['id'] }}"
                                         onclick="showGroupMessageForm('{{ Auth::user()->id }}','{{ Auth::user()->name }}','{{ $group['id'] }}','{{ $group['name'] }}')"
                                         @if (!$group['is_subscribed']) disabled @endif>Send</button>
@@ -94,6 +110,7 @@
             </div>
         </div>
 
+        <!-- Send message to all users -->
         <div class="p-4 bg-light rounded mb-5 flex">
             <h3>Send Message To All Users!</h3>
             <button
@@ -104,8 +121,17 @@
 
     </div>
 
-
     <script>
+        // Array to store subscribed group IDs
+        let subscribedGroupIds = [];
+        // Loop through userGroups to populate subscribedGroupIds
+        @foreach ($userGroups as $group)
+            @if ($group['is_subscribed'])
+                subscribedGroupIds.push({{ $group['id'] }});
+            @endif
+        @endforeach
+        
+        // Function to show message form for individual user
         function showMessageForm(receiverId, recieverName, senderId, senderName) {
             $('#receiver_id').val(receiverId);
             $('#sender_id').val(senderId);
@@ -114,6 +140,7 @@
             $('#messageModal').modal('show');
         }
 
+        // Function to show message form for a group
         function showGroupMessageForm(senderId, senderName, groupId, groupName) {
             $('#group_sender_id').val(senderId);
             $('#group_sender_name').val(senderName);
@@ -121,13 +148,15 @@
             $('#group_name').val(groupName);
             $('#groupMessageModal').modal('show');
         }
-
+        
+        // Function to show message form for all users
         function showAllUserMessageForm(senderId, senderName) {
             $('#user_sender_id').val(senderId);
             $('#user_sender_name').val(senderName);
             $('#allUserMessageModal').modal('show');
         }
-
+        
+        // Function to update notification count
         function updateNotificationCount() {
             $.ajax({
                 url: "{{ route('update.notification.count', ['userId' => auth()->id()]) }}",
@@ -143,7 +172,8 @@
                 }
             });
         }
-
+        
+        // Function to send message to a single user
         function sendMessageToSingleUser() {
             let receiverId = $('#receiver_id').val();
             let message = $('#message').val();
@@ -172,9 +202,9 @@
                 }
             });
         }
-
+        
+        // Function to send message to a group
         function sendMessageToGroup() {
-
             let message = $('#group_message').val();
             let senderId = $('#group_sender_id').val();
             let senderName = $('#group_sender_name').val();
@@ -204,7 +234,8 @@
                 }
             });
         }
-
+        
+        // Function to send message to all users
         function sendMessageToAllUsers() {
 
             let message = $('#alluser_message').val();
@@ -256,6 +287,8 @@
                 e.preventDefault();
                 sendMessageToAllUsers();
             });
+            
+            // AJAX request to get message list and update notifications
             $.ajax({
                 url: "{{ route('get.message.list', ['userId' => auth()->id()]) }}",
                 type: "GET",
@@ -302,26 +335,40 @@
                     },
                     success: function(response) {
                         if (response.is_subscribed) {
-                            button.text('UnSubsribe').addClass('btn-danger');
+                            button.text('UnSubscribe').addClass('btn-danger');
                             button.closest('tr').find('.send-btn[data-group-id="' + groupId +
                                 '"]').prop('disabled', false);
+                            window.Echo.private('group.' + groupId)
+                                .listen('GroupMessageEvent', (e) => {
+                                    handleNotification(e, notificationCount,
+                                        notificationList);
+                                });
                         } else {
+
                             button.text('Subscribe').removeClass('btn-danger');
                             button.closest('tr').find('.send-btn[data-group-id="' + groupId +
                                 '"]').prop('disabled', true);
+                            window.Echo.leave('group.' + groupId);
+
+
+
                         }
-                       
                     }
                 });
             });
-
+            
+            // Event listeners for WebSocket notifications
             let userId = {{ auth()->id() }};
             let notificationCount = $('#notification-count');
             let notificationList = $('#notification-list');
-
+            
+            // Function to handle incoming notifications
             function handleNotification(e, notificationCount, notificationList) {
+                if (e.messageData['sender_id'] == userId) {
+                    return;
+                }
                 let encryptedMessage = e.messageData['content'];
-                let groupName = e.messageData['message_type']==="group" ? e.messageData['group_name'] + ': ' : '';
+                let groupName = e.messageData['message_type'] === "group" ? e.messageData['group_name'] + ': ' : '';
                 let all = e.messageData['message_type'] === 'all' ? 'All' + ': ' : '';
 
                 $.ajax({
@@ -356,18 +403,19 @@
                 });
             }
 
-
+            // Listen for WebSocket events
             window.Echo.private('user.' + userId)
                 .listen('OneToOneMessageEvent', (e) => {
                     handleNotification(e, notificationCount, notificationList);
                 });
-
-            window.Echo.private('group.' + userId)
-                .listen('GroupMessageEvent', (e) => {
-                    handleNotification(e, notificationCount, notificationList);
-                });
-
-            window.Echo.private('allUser.' + userId)
+            subscribedGroupIds.forEach(groupId => {
+                window.Echo.private('group.' + groupId)
+                    .listen('GroupMessageEvent', (e) => {
+                        handleNotification(e, notificationCount,
+                            notificationList);
+                    });
+            });
+            Echo.channel('allUser')
                 .listen('AllUsersMessageEvent', (e) => {
                     handleNotification(e, notificationCount, notificationList);
                 });

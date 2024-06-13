@@ -15,7 +15,7 @@ use App\Models\MessageRecipient;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use App\Enums\MessageType;
 class SendMessageTest extends TestCase
 {
 
@@ -39,7 +39,7 @@ class SendMessageTest extends TestCase
             'content' => $this->faker->text,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
-            'message_type' => 'individual',
+            'message_type' => MessageType::Individual(),
         ];
         $expectedResponse = ['success' => 'Message sent successfully.'];
 
@@ -64,7 +64,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
-            'message_type' => 'individual',
+            'message_type' => MessageType::Individual(),
         ];
         $expectedResponse = ['error' => 'The selected receiver id is invalid.'];
 
@@ -89,7 +89,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
-            'message_type' => 'individual',
+            'message_type' => MessageType::Individual(),
         ];
         $expectedResponse = ['error' => 'Something Went Wrong'];
 
@@ -119,7 +119,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $userGroupMember->user_id,
             'sender_name' => $senderName,
-            'message_type' => 'Group',
+            'message_type' => MessageType::Group(),
             'group_name' => $groupName,
         ];
         $expectedResponse = ['success' => 'Message sent successfully.'];
@@ -148,7 +148,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $userGroupMember->user_id,
             'sender_name' => $senderName,
-            'message_type' => 'Group',
+            'message_type' => MessageType::Group(),
             'group_name' => $groupName,
         ];
         $expectedResponse = ['error' => 'The group id must be an integer.'];
@@ -175,7 +175,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $userGroupMember->user_id,
             'sender_name' => $senderName,
-            'message_type' => 'Group',
+            'message_type' => MessageType::Group(),
             'group_name' => $groupName,
         ];
         $expectedResponse = ['error' => 'Something Went Wrong'];
@@ -201,7 +201,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
-            'message_type' => 'all',
+            'message_type' => MessageType::All(),
         ];
         $expectedResponse = ['success' => 'Message sent successfully.'];
 
@@ -224,7 +224,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $this->faker->randomNumber(3),
             'sender_name' => $sender->name,
-            'message_type' => 'all',
+            'message_type' => MessageType::All(),
 
         ];
         $expectedResponse = ['error' => 'The selected sender id is invalid.'];
@@ -248,7 +248,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
-            'message_type' => 'all',
+            'message_type' => MessageType::All(),
 
         ];
         $expectedResponse = ['error' => 'Something Went Wrong'];
@@ -273,7 +273,7 @@ class SendMessageTest extends TestCase
         $payload = [
             'content' => $message,
             'sender_id' => $sender->id,
-            'message_type' => 'all',
+            'message_type' => MessageType::All(),
             'sender_name' => $sender->name
         ];
 
@@ -315,7 +315,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
-            'message_type' => 'individual',
+            'message_type' => MessageType::Individual(),
         ];
 
         $expectedResponse = ['success' => 'Message sent successfully.'];
@@ -350,7 +350,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $userGroupMember->user_id,
             'sender_name' => $senderName,
-            'message_type' => 'group',
+            'message_type' => MessageType::Group(),
             'group_name' => $groupName,
         ];
         $expectedResponse = ['success' => 'Message sent successfully.'];
@@ -380,7 +380,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
-            'message_type' => 'all',
+            'message_type' => MessageType::All(),
         ];
         $expectedResponse = ['success' => 'Message sent successfully.'];
 
@@ -409,7 +409,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
-            'message_type' => 'all',
+            'message_type' => MessageType::All(),
         ];
         $expectedResponse = ['success' => 'Message sent successfully.'];
 
@@ -438,7 +438,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
-            'message_type' => 'individual',
+            'message_type' => MessageType::Individual(),
         ];
 
         $expectedResponse = ['success' => 'Message sent successfully.'];
@@ -467,7 +467,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
-            'message_type' => 'individual',
+            'message_type' => MessageType::Individual(),
         ];
 
         $expectedResponse = ['success' => 'Message sent successfully.'];
@@ -496,7 +496,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
-            'message_type' => 'individual',
+            'message_type' => MessageType::Individual(),
         ];
 
         $expectedResponse = ['success' => 'Message sent successfully.'];
@@ -526,7 +526,7 @@ class SendMessageTest extends TestCase
             'content' => $message,
             'sender_id' => $sender->id,
             'sender_name' => $sender->name,
-            'message_type' => 'individual',
+            'message_type' => MessageType::Individual(),
         ];
 
         $expectedResponse = ['success' => 'Message sent successfully.'];

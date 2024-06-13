@@ -10,6 +10,13 @@ use Session;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+
+
+/**
+ * Class AuthController
+ *
+ * You can ignoare this controller as this controller handles user authentication related operations.
+ */
 class AuthController extends Controller
 {
 
@@ -51,26 +58,27 @@ class AuthController extends Controller
 
     public function postRegister(Request $request):RedirectResponse
     {
-        try {
             $request->validate([
-                'name' => 'required',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|min:6',
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required',
             ]);
-            $data = $request->only(['name', 'email', 'password']);
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => Hash::make($data['password'])
-            ]);
-            if ($user) {
-                return redirect()->route('login')->with('success', 'Registration successful! Login to access the App.');
-            } else {
-                throw new \Exception('Failed to register. Please try again.');
+            try {
+                $user = User::create([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                ]);
+                if ($user) {
+                    return redirect()->route('login')->with('success', 'Registration successful! Login to access the App.');
+                } else {
+                    throw new \Exception('Failed to register. Please try again.');
+                }
+            } catch (\Exception $e) {
+    
+                \Log::error('Registration error: ' . $e->getMessage());
+                return redirect()->route('get.register')->withErrors(['failed' => 'Failed to register. Please try again.']);
             }
-        } catch (\Exception $e) {
-            return redirect("/register")->withErrors(['failed' => $e->getMessage()]);
-        }
     }
     public function signOut():RedirectResponse
     {

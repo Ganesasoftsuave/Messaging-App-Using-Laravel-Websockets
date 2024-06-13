@@ -19,37 +19,26 @@
             <div class="card-header bg-primary text-center text-white">
                 <h3 class="m-1">Register User</h3>
             </div>
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                        @foreach ($errors->all() as $error)
-                            {{ $error }}
-                        @endforeach
-                </div>
-            @endif
             <div class="card-body">
                 <form action="{{ route('post.register') }}" method="POST">
                     @csrf
                     <div class="mb-3">
                         <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" placeholder="Name"
-                            autofocus required>
+                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" placeholder="Name" required autofocus>
                         @error('name')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Email"
-                            required>
+                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" placeholder="Email" required>
                         @error('email')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password"
-                            placeholder="Password" required>
+                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password" required>
                         @error('password')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
@@ -62,6 +51,8 @@
             </div>
         </div>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js"></script>
 </body>
-
 </html>
+<?php

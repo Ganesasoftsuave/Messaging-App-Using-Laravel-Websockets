@@ -54,10 +54,7 @@ This guide will walk you through the steps to set up WebSockets in a Laravel app
 9. For Code coverage run the following Artisan command:
     ```bash
     vendor/bin/phpunit --coverage-html reports/
-    
-    
-   
-   
+
 ## Front-end setup
 
 1. Install npm:
@@ -67,6 +64,30 @@ This guide will walk you through the steps to set up WebSockets in a Laravel app
 2. Compile your assets :
      ```bash
      npm run dev
+
+
+## Docker Setup
+        
+    Copy .env.docker and rename .env
+    Run the following commands to setup docker containner
+ 1. Switches the Docker CLI to use the desktop-linux context.
+    ```bash
+    docker context use desktop-linux
+  
+2.  Starting the Services:
+     ```bash
+      docker compose up
+      
+3.  Stopping the Services:
+     ```bash
+      docker-compose down
+4.  To lists the containers that are currently running
+    ```bash
+      docker ps
+    
+    
+   
+
 
 ## Project Flow
 
@@ -118,6 +139,10 @@ This guide will walk you through the steps to set up WebSockets in a Laravel app
 ![Image-4](public/assets/image-4.png)
  
 ![Image-5](public/assets/image-5.png)
+
+
+
+        
 
    
    
